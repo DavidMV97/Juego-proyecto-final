@@ -5,7 +5,6 @@ import utils.generic as utl
 from forms.form_names import PanelNames
 
 class App:
-    
     def check_number_players(self):
         try:
             players = int(self.number_players.get())
@@ -26,7 +25,7 @@ class App:
         self.window.title('Bienvenido')
         self.window.geometry('800x500')
         self.window.resizable(0,0)
-        utl.center_window(self.window, 800, 500)
+        #utl.center_window(self.window, 800, 500)
         
         logo = utl.read_img('./img/logo.jpg', (300, 200))
         
