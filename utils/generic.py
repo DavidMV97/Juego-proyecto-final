@@ -10,4 +10,7 @@ def center_window(window, aplication_width, aplication_height):
     y= int((screen_height / 2) - (aplication_height / 2) )
     return window.geometry(f"{aplication_width}x{aplication_height}+{x}+{y}")
 
+
+
+
     
