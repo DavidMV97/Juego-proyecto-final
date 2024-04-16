@@ -25,6 +25,8 @@ class App:
         self.window.title('Bienvenido')
         self.window.geometry('800x500')
         self.window.resizable(0,0)
+        self.window.config(background='#1f1e30')
+
         #utl.center_window(self.window, 800, 500)
         
         logo = utl.read_img('./img/logo.jpg', (300, 200))
@@ -32,8 +34,8 @@ class App:
         # frame logo
         frame_logo = ttk.Frame(self.window, width=300, style='My.TFrame')
         frame_logo.pack(side='left', expand=tk.NO, fill=tk.BOTH)
-        label = ttk.Label(frame_logo, image=logo)
-        label.pack(fill=tk.BOTH, expand=tk.YES)
+        #label = ttk.Label(frame_logo, image=logo)
+        #label.pack(fill=tk.BOTH, expand=tk.YES)
         
         # frame form
         frame_form = ttk.Frame(self.window)
@@ -60,14 +62,16 @@ class App:
         enter.config(command=self.check_number_players)
         enter.pack(fill=tk.X, padx=20, pady=20)
         
-        self.window.mainloop()
-        
         
         # Establecer estilos
         style = ttk.Style()
         style.configure('My.TFrame', background='#fff')
         style.configure('My.TLabel', foreground='#666a88', background='#fff')
         style.configure('My.TButton', background='#3a7ff6', foreground='#fff')
+        
+        self.window.mainloop()
+        
+        
 
 
 

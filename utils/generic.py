@@ -1,5 +1,9 @@
 from PIL import ImageTk, Image
 
+def main_color():
+    main_color = '#fff'
+    return main_color
+
 def read_img(path, size):
     return ImageTk.PhotoImage(Image.open(path).resize(size, Image.LANCZOS))
 
