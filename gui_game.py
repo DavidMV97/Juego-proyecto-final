@@ -38,20 +38,38 @@ class Game:
             if player.amount == 0:
                 messagebox.showinfo("Juego terminado",f"{player.names} ha ganado el juego")
                 break
+    
+    
+    def  player_highest_number(self, players_numbers):
+        if len(self.get_all_number_players) > 0 :
+            # Highest random number obtained
+            greatest_tuple = max(players_numbers, key=lambda x: x[1])
+            # Get the first number of the found tuple (player index)
+            player_index = greatest_tuple[0]
+            self.current_player_index = player_index
+            for i in range(len(self.player_labels)):
+                self.player_labels[i]['background'] = 'white'
+
+            self.change_current_label_player()
+            
+            messagebox.showinfo("Turno obtenido",f"El jugador que lanza primero es : {self.players_list[player_index].names}")
 
     
     def process_list(self):
         random_num = self.number_random()
         self.change_current_label_player()
         if self.first_round:
-            print('we are in the first round ')
             # First round
             if self.current_player_index + 1 >= len(self.players_list):
                 self.first_round = False
             print(self.players_list[self.current_player_index].names, 'número', random_num)
+            # Player index and number obtained
+            get_number_player = (self.current_player_index, random_num)
+            self.get_all_number_players.append(get_number_player)
         else:
             # Second round
-            print('we are in second round')
+            self.player_highest_number(self.get_all_number_players)
+            self.get_all_number_players = []
             if random_num in self.lists:
                 if all(element == 1 for element in self.lists[random_num]):
                     # The list is full. The player takes a ball.
@@ -109,6 +127,9 @@ class Game:
         self.number_balls = 30
         self.current_player_index = 0
         self.balls_per_player = self.number_balls // len(names)
+        # Obtain the indexes of all the players along with the number they obtained
+        self.get_all_number_players = []
+        
         self.players_list = []
         self.player_labels = [] 
         self.labels = {}
@@ -133,8 +154,7 @@ class Game:
             label_name.pack()
             self.player_labels.append(label_name) 
         
-
-       
+ 
         #imagen_inicial = tk.PhotoImage(file="img/logo.jpg")
         self.label_dado = tk.Label(self.frame_bottom, text=1)
         self.label_dado.pack()
