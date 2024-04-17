@@ -4,11 +4,10 @@ from tkinter import ttk, messagebox
 from players import Players
 from utils.generic import main_color
 
-
 class Game:
     
     def number_random(self):
-            return random.randint(1, 5)
+            return random.randint(1, 6)
 
 
     def replace_zero(self, list_num):
@@ -17,19 +16,58 @@ class Game:
                     list_num[i] = 1
                     break
 
+    
+    def update_amount_player(self, operator):
+        if (self.current_player_index + 1) <= len(self.players_list):
+            if operator == '+=':
+                self.players_list[self.current_player_index].amount += 1
+            else: 
+                self.players_list[self.current_player_index].amount -= 1
+            # Update the label corresponding to the player
+            self.player_labels[self.current_player_index]['text'] = f'{self.players_list[self.current_player_index].names} | Bolas restantes : {self.players_list[self.current_player_index].amount}'
 
+    
+    def end_game(self):
+        for player in self.players_list:
+            if player.amount == 0:
+                messagebox.showinfo("Juego terminado",f"{player.names} ha ganado el juego")
+                break
+
+    
     def process_list(self):
         random_num = self.number_random()
-        if random_num in self.lists:
-            if all(element == 1 for element in self.lists[random_num]):
-                #The list is full
-                self.lists[random_num][-1] = 0
+        print('random num', random_num)
+        print('current index', self.current_player_index)
+        if self.first_round:
+            print('we are in the first round ')
+            # First round
+            if self.current_player_index + 1 >= len(self.players_list):
+                self.first_round = False
+            print(self.players_list[self.current_player_index].names, 'número', random_num)
+        else:
+            # Second round
+            print('we are in second round')
+            if random_num in self.lists:
+                if all(element == 1 for element in self.lists[random_num]):
+                    # The list is full. The player takes a ball.
+                    self.lists[random_num][-1] = 0
+                    self.update_amount_player('+=')
+                else:
+                    # The player leaves a ball.
+                    self.replace_zero(self.lists[random_num])
+                    self.update_amount_player('-=')
+
                 self.labels[random_num].config(text=f"{random_num}: {self.lists[random_num]}")
             else:
-                self.replace_zero(self.lists[random_num])
-                self.labels[random_num].config(text=f"{random_num}: {self.lists[random_num]}")
+                # The random number is 6. The player leaves a ball in the hole.
+                self.update_amount_player('-=')
+                self.labels[self.current_player_index].config(text=f"{self.current_player_index}: {self.lists[self.current_player_index]}")
 
-        
+            self.end_game()
+
+        # Update the current player's index
+        self.current_player_index = (self.current_player_index + 1) % len(self.players_list)
+
     
     
     def __init__(self, names):
@@ -62,9 +100,12 @@ class Game:
         
         
         #### Game variables ####
+        self.first_round = True
         self.number_balls = 30
-        self.players_list = []
+        self.current_player_index = 0
         self.balls_per_player = self.number_balls // len(names)
+        self.players_list = []
+        self.player_labels = [] 
         self.lists = {
             1: [0],
             2: [0, 0],
@@ -78,11 +119,13 @@ class Game:
             self.labels[key] = ttk.Label(self.frame_board, text=f"{key}: {value}")
             self.labels[key].pack(fill=tk.X)
         
+        
         for name in names:
             player = Players(name, self.balls_per_player)
             self.players_list.append(player)
             label_name = ttk.Label(self.frame_top_names, text=f'{name} | Bolas restantes : {player.amount}')
             label_name.pack()
+            self.player_labels.append(label_name) 
         
 
        
