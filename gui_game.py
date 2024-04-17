@@ -27,6 +27,12 @@ class Game:
             self.player_labels[self.current_player_index]['text'] = f'{self.players_list[self.current_player_index].names} | Bolas restantes : {self.players_list[self.current_player_index].amount}'
 
     
+    
+    def change_current_label_player(self):
+        self.player_labels[self.current_player_index - 1]['background'] = 'white'
+        self.player_labels[self.current_player_index]['background'] = 'red'    
+    
+    
     def end_game(self):
         for player in self.players_list:
             if player.amount == 0:
@@ -36,8 +42,7 @@ class Game:
     
     def process_list(self):
         random_num = self.number_random()
-        print('random num', random_num)
-        print('current index', self.current_player_index)
+        self.change_current_label_player()
         if self.first_round:
             print('we are in the first round ')
             # First round
@@ -61,7 +66,7 @@ class Game:
             else:
                 # The random number is 6. The player leaves a ball in the hole.
                 self.update_amount_player('-=')
-                self.labels[self.current_player_index].config(text=f"{self.current_player_index}: {self.lists[self.current_player_index]}")
+                #self.labels[self.current_player_index].config(text=f"{self.current_player_index}: {self.lists[self.current_player_index]}")
 
             self.end_game()
 
@@ -106,6 +111,7 @@ class Game:
         self.balls_per_player = self.number_balls // len(names)
         self.players_list = []
         self.player_labels = [] 
+        self.labels = {}
         self.lists = {
             1: [0],
             2: [0, 0],
@@ -114,7 +120,6 @@ class Game:
             5: [0, 0, 0, 0, 0]
         }
         
-        self.labels = {}
         for key, value in self.lists.items():
             self.labels[key] = ttk.Label(self.frame_board, text=f"{key}: {value}")
             self.labels[key].pack(fill=tk.X)
@@ -124,6 +129,7 @@ class Game:
             player = Players(name, self.balls_per_player)
             self.players_list.append(player)
             label_name = ttk.Label(self.frame_top_names, text=f'{name} | Bolas restantes : {player.amount}')
+            label_name.config(background='white')
             label_name.pack()
             self.player_labels.append(label_name) 
         
