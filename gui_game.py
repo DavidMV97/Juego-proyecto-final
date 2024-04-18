@@ -36,7 +36,7 @@ class Game:
         self.frame_bottom = ttk.Frame(self.frame_board)
         self.frame_bottom.grid(row=6, columnspan=4,  pady=20)
         # start game button
-        start_game = tk.Button(self.frame_bottom, text='Lanzar dado',cursor="hand1", command=lambda:self.process_list())
+        start_game = tk.Button(self.frame_bottom, text='Lanzar dado',cursor="hand1", command=lambda:self.roll_dice())
         start_game.config(bg='#3a7ff6', fg='white', activebackground="white", activeforeground='#3a7ff6')
         start_game.grid(row=1, columnspan=4)
         #### End Main ttk frames ####
@@ -78,7 +78,6 @@ class Game:
             self.player_labels.append(label_name) 
         
  
-        #imagen_inicial = tk.PhotoImage(file="img/logo.jpg")
         self.label_dado = tk.Label(self.frame_bottom, text='\u2684')
         self.label_dado.config(bg='white', fg='#3a7ff6', font=('Helvetica', 50))
         self.label_dado.grid(row=0, columnspan=4, pady=10)
@@ -91,7 +90,7 @@ class Game:
             return random.randint(1, 6)
 
 
-    def replace_zero(self, list_num):
+    def fill_space(self, list_num):
             for i, num in enumerate(list_num):
                 if num == '\u25CB':
                     list_num[i] = '\u25CF'
@@ -152,7 +151,7 @@ class Game:
             messagebox.showinfo("Turno obtenido",f"El jugador que lanza primero es : {self.players_list[player_index].names}")
 
     
-    def process_list(self):
+    def roll_dice(self):
         random_num = self.number_random()
         self.change_current_label_player()
         self.label_dado.config(text=self.dice_values[random_num - 1])
@@ -177,7 +176,7 @@ class Game:
                     self.update_amount_player('+=')
                 else:
                     # The player leaves a ball.
-                    self.replace_zero(self.lists[random_num])
+                    self.fill_space(self.lists[random_num])
                     self.update_amount_player('-=')
                 formatted_value = ' '.join(map(str, self.lists[random_num]))
                 self.labels[random_num].config(text=f"{formatted_value}")
@@ -192,6 +191,3 @@ class Game:
         self.current_player_index = (self.current_player_index + 1) % len(self.players_list)
 
 
-     
-names = ['laura', 'luisa', 'yeny']
-app = Game(names)

@@ -13,10 +13,6 @@ class PanelNames:
                 error = True
                 messagebox.showerror('Campos en blanco', 'Por favor llena todos los campos')
                 break
-            elif not entry.get().isalpha():
-                error = True
-                messagebox.showerror('Solo letras', '¡Solo se permiten letras!')
-                break
             else:
                 error = False
                 values.append(entry.get())
