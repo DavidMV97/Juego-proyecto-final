@@ -167,7 +167,6 @@ class Game:
         # Update the current player's index
         self.current_player_index = (self.current_player_index + 1) % len(self.players_list)
 
-names = ['Laura', 'Yenni', 'Dianix']
-app = Game(names)    
+
      
    
