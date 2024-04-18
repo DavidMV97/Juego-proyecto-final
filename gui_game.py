@@ -1,15 +1,18 @@
 import tkinter as tk 
 import random
+import pygame
 from tkinter import ttk, messagebox
 from players import Players
 from utils.generic import main_color
+
+pygame.mixer.init()
 
 class Game:    
     def __init__(self, names):
         #### Main ttk frames ####
         self.window = tk.Tk()
         self.window.title('Inicio Juego')
-        self.window.geometry('800x500')
+        self.window.geometry('800x400')
         self.window.resizable(0, 0)
         style = ttk.Style()
         self.main_color = main_color()
@@ -23,6 +26,9 @@ class Game:
         self.label_title_name_players = ttk.Label(self.frame_top_names, text='Jugadores')
         self.label_title_name_players.config(background='white')
         self.label_title_name_players.pack()
+        # Frame right top 
+        self.frame_right_top = ttk.Frame(self.main_frame, relief=tk.FLAT)
+        self.frame_right_top.pack(side='right', fill=tk.BOTH, expand=tk.YES)
         # Frame right (Board)   
         self.frame_board = ttk.Frame(self.main_frame, relief=tk.FLAT)
         self.frame_board.pack(side='right', expand=tk.YES)
@@ -43,10 +49,14 @@ class Game:
         self.balls_per_player = self.number_balls // len(names)
         # Obtain the indexes of all the players along with the number they obtained
         self.get_all_number_players = []
-        
         self.players_list = []
         self.player_labels = [] 
+        self.dice_values = ['\u2680', '\u2681', '\u2682', '\u2683', '\u2684', '\u2685']
         self.labels = {}
+        # Label number six
+        self.label_top_right = tk.Label(self.frame_right_top, text="6", font=("Arial 30 bold"))
+        self.label_top_right.config(bg='white', fg='#666a88')
+        self.label_top_right.pack()
         
         self.lists = {i: ['\u25CB'] * i for i in range(1, 6)}
 
@@ -69,8 +79,8 @@ class Game:
         
  
         #imagen_inicial = tk.PhotoImage(file="img/logo.jpg")
-        self.label_dado = tk.Label(self.frame_bottom, text=5)
-        self.label_dado.config(background='white')
+        self.label_dado = tk.Label(self.frame_bottom, text='\u2684')
+        self.label_dado.config(bg='white', fg='#3a7ff6', font=('Helvetica', 50))
         self.label_dado.grid(row=0, columnspan=4, pady=10)
        
         self.window.mainloop()
@@ -109,8 +119,20 @@ class Game:
     def end_game(self):
         for player in self.players_list:
             if player.amount == 0:
+                pygame.mixer.music.load("sounds/success.mp3")
+                pygame.mixer.music.play(loops=0)
                 messagebox.showinfo("Juego terminado",f"{player.names} ha ganado el juego")
+                self.window.destroy()
                 break
+    
+    # Only the label changes to indicate that the player has obtained a six
+    def get_six_number(self, number):
+        if number == 6:
+            self.label_top_right.config(fg='#3a7ff6')
+            pygame.mixer.music.load("sounds/get-six.mp3")
+            pygame.mixer.music.play(loops=0)
+        else:
+            self.label_top_right.config(fg='#666a88')
     
     
     def  player_highest_number(self, players_numbers):
@@ -124,26 +146,28 @@ class Game:
                 self.player_labels[i]['background'] = 'white'
                 self.player_labels[i]['foreground'] = 'black'
                 
-
+            pygame.mixer.music.load("sounds/winner-first-round.mp3")
+            pygame.mixer.music.play(loops=0)
             self.change_current_label_player()
-            
             messagebox.showinfo("Turno obtenido",f"El jugador que lanza primero es : {self.players_list[player_index].names}")
 
     
     def process_list(self):
         random_num = self.number_random()
         self.change_current_label_player()
-        self.label_dado.config(text=random_num)
+        self.label_dado.config(text=self.dice_values[random_num - 1])
+        pygame.mixer.music.load("sounds/click.mp3")
+        pygame.mixer.music.play(loops=0)
         if self.first_round:
             # First round
             if self.current_player_index + 1 >= len(self.players_list):
                 self.first_round = False
-            print(self.players_list[self.current_player_index].names, 'número', random_num)
             # Player index and number obtained
             get_number_player = (self.current_player_index, random_num)
             self.get_all_number_players.append(get_number_player)
         else:
             # Second round
+            self.get_six_number(random_num)
             self.player_highest_number(self.get_all_number_players)
             self.get_all_number_players = []
             if random_num in self.lists:
@@ -169,4 +193,5 @@ class Game:
 
 
      
-   
+names = ['laura', 'luisa', 'yeny']
+app = Game(names)

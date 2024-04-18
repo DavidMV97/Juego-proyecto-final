@@ -26,11 +26,7 @@ class App:
         self.window.geometry('800x300')
         self.window.resizable(0,0)
         self.window.config(background='#1f1e30')
-
-        #utl.center_window(self.window, 800, 500)
-        
-        logo = utl.read_img('./img/dado3.png', (50, 50))
-        
+                
         # frame logo
         frame_logo = ttk.Frame(self.window, width=250, style='My.TFrame')
         frame_logo.pack(side='left', expand=tk.YES, fill=tk.BOTH)
