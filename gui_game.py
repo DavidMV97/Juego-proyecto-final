@@ -4,7 +4,78 @@ from tkinter import ttk, messagebox
 from players import Players
 from utils.generic import main_color
 
-class Game:
+class Game:    
+    def __init__(self, names):
+        #### Main ttk frames ####
+        self.window = tk.Tk()
+        self.window.title('Inicio Juego')
+        self.window.geometry('800x500')
+        self.window.resizable(0, 0)
+        style = ttk.Style()
+        self.main_color = main_color()
+        style.configure('TFrame', background=self.main_color)
+        # Main frame
+        self.main_frame = ttk.Frame(self.window)
+        self.main_frame.pack(fill=tk.BOTH, expand=True)
+        # frame left        
+        self.frame_top_names = ttk.Frame(self.main_frame)
+        self.frame_top_names.pack(side='left', expand=tk.NO, fill=tk.BOTH, pady=10)
+        self.label_title_name_players = ttk.Label(self.frame_top_names, text='Jugadores')
+        self.label_title_name_players.config(background='white')
+        self.label_title_name_players.pack()
+        # Frame right (Board)   
+        self.frame_board = ttk.Frame(self.main_frame, relief=tk.FLAT)
+        self.frame_board.pack(side='right', expand=tk.YES)
+        # Frame botton
+        self.frame_bottom = ttk.Frame(self.frame_board)
+        self.frame_bottom.grid(row=6, columnspan=4,  pady=20)
+        # start game button
+        start_game = tk.Button(self.frame_bottom, text='Lanzar dado',cursor="hand1", command=lambda:self.process_list())
+        start_game.config(bg='#3a7ff6', fg='white', activebackground="white", activeforeground='#3a7ff6')
+        start_game.grid(row=1, columnspan=4)
+        #### End Main ttk frames ####
+        
+        
+        #### Game variables ####
+        self.first_round = True
+        self.number_balls = 30
+        self.current_player_index = 0
+        self.balls_per_player = self.number_balls // len(names)
+        # Obtain the indexes of all the players along with the number they obtained
+        self.get_all_number_players = []
+        
+        self.players_list = []
+        self.player_labels = [] 
+        self.labels = {}
+        
+        self.lists = {i: ['\u25CB'] * i for i in range(1, 6)}
+
+        for key, value in self.lists.items():
+            row_label = key // 3 
+            column_label = (key - 1) % 3
+            formatted_value = ' '.join(map(str, value))
+            self.labels[key] = tk.Label(self.frame_board, text=f"{formatted_value}", font=("Arial 30 bold"))
+            self.labels[key].configure(background='white', foreground='#3a7ff6')
+            self.labels[key].grid(row=row_label, column=column_label, pady=12, padx=20)
+        
+        
+        for name in names:
+            player = Players(name, self.balls_per_player)
+            self.players_list.append(player)
+            label_name = tk.Label(self.frame_top_names, text=f'{name} | Bolas restantes : {player.amount}')
+            label_name.config(background='white', pady=2, padx=5)
+            label_name.pack()
+            self.player_labels.append(label_name) 
+        
+ 
+        #imagen_inicial = tk.PhotoImage(file="img/logo.jpg")
+        self.label_dado = tk.Label(self.frame_bottom, text=5)
+        self.label_dado.config(background='white')
+        self.label_dado.grid(row=0, columnspan=4, pady=10)
+       
+        self.window.mainloop()
+    
+    
     
     def number_random(self):
             return random.randint(1, 6)
@@ -12,8 +83,8 @@ class Game:
 
     def replace_zero(self, list_num):
             for i, num in enumerate(list_num):
-                if num == 0:
-                    list_num[i] = 1
+                if num == '\u25CB':
+                    list_num[i] = '\u25CF'
                     break
 
     
@@ -30,7 +101,9 @@ class Game:
     
     def change_current_label_player(self):
         self.player_labels[self.current_player_index - 1]['background'] = 'white'
-        self.player_labels[self.current_player_index]['background'] = 'red'    
+        self.player_labels[self.current_player_index - 1]['foreground'] = 'black'
+        self.player_labels[self.current_player_index]['background'] = '#3a7ff6' 
+        self.player_labels[self.current_player_index]['foreground'] = 'white'   
     
     
     def end_game(self):
@@ -49,6 +122,8 @@ class Game:
             self.current_player_index = player_index
             for i in range(len(self.player_labels)):
                 self.player_labels[i]['background'] = 'white'
+                self.player_labels[i]['foreground'] = 'black'
+                
 
             self.change_current_label_player()
             
@@ -58,6 +133,7 @@ class Game:
     def process_list(self):
         random_num = self.number_random()
         self.change_current_label_player()
+        self.label_dado.config(text=random_num)
         if self.first_round:
             # First round
             if self.current_player_index + 1 >= len(self.players_list):
@@ -71,16 +147,16 @@ class Game:
             self.player_highest_number(self.get_all_number_players)
             self.get_all_number_players = []
             if random_num in self.lists:
-                if all(element == 1 for element in self.lists[random_num]):
+                if all(element == '\u25CF' for element in self.lists[random_num]):
                     # The list is full. The player takes a ball.
-                    self.lists[random_num][-1] = 0
+                    self.lists[random_num][-1] = '\u25CB'
                     self.update_amount_player('+=')
                 else:
                     # The player leaves a ball.
                     self.replace_zero(self.lists[random_num])
                     self.update_amount_player('-=')
-
-                self.labels[random_num].config(text=f"{random_num}: {self.lists[random_num]}")
+                formatted_value = ' '.join(map(str, self.lists[random_num]))
+                self.labels[random_num].config(text=f"{formatted_value}")
             else:
                 # The random number is 6. The player leaves a ball in the hole.
                 self.update_amount_player('-=')
@@ -91,75 +167,7 @@ class Game:
         # Update the current player's index
         self.current_player_index = (self.current_player_index + 1) % len(self.players_list)
 
-    
-    
-    def __init__(self, names):
-        #### Main ttk frames ####
-        self.window = tk.Tk()
-        self.window.title('Inicio Juego')
-        self.window.geometry('800x500')
-        self.window.resizable(0, 0)
-        style = ttk.Style()
-        self.main_color = main_color()
-        style.configure('TFrame', background=self.main_color)
-        # Main frame
-        self.main_frame = ttk.Frame(self.window)
-        self.main_frame.pack(fill=tk.BOTH, expand=True)
-        # frame left        
-        self.frame_top_names = ttk.Frame(self.main_frame)
-        self.frame_top_names.pack(side='left', expand=tk.NO, fill=tk.BOTH)
-        self.label_title_name_players = ttk.Label(self.frame_top_names, text='Jugadores')
-        self.label_title_name_players.pack()
-        # Frame right (Board)   
-        self.frame_board = ttk.Frame(self.main_frame, relief=tk.SOLID)
-        self.frame_board.pack(side='right', expand=tk.YES, fill=tk.BOTH)
-        # Frame botton
-        self.frame_bottom = ttk.Frame(self.frame_board, relief=tk.SOLID)
-        self.frame_bottom.pack(side='bottom', expand=tk.YES, fill=tk.BOTH)
-        # start game button
-        start_game = ttk.Button(self.frame_bottom, text='Lanzar dado', command=lambda:self.process_list())
-        start_game.pack(fill=tk.X)
-        #### End Main ttk frames ####
-        
-        
-        #### Game variables ####
-        self.first_round = True
-        self.number_balls = 30
-        self.current_player_index = 0
-        self.balls_per_player = self.number_balls // len(names)
-        # Obtain the indexes of all the players along with the number they obtained
-        self.get_all_number_players = []
-        
-        self.players_list = []
-        self.player_labels = [] 
-        self.labels = {}
-        self.lists = {
-            1: [0],
-            2: [0, 0],
-            3: [0, 0, 0],
-            4: [0, 0, 0, 0],
-            5: [0, 0, 0, 0, 0]
-        }
-        
-        for key, value in self.lists.items():
-            self.labels[key] = ttk.Label(self.frame_board, text=f"{key}: {value}")
-            self.labels[key].pack(fill=tk.X)
-        
-        
-        for name in names:
-            player = Players(name, self.balls_per_player)
-            self.players_list.append(player)
-            label_name = ttk.Label(self.frame_top_names, text=f'{name} | Bolas restantes : {player.amount}')
-            label_name.config(background='white')
-            label_name.pack()
-            self.player_labels.append(label_name) 
-        
- 
-        #imagen_inicial = tk.PhotoImage(file="img/logo.jpg")
-        self.label_dado = tk.Label(self.frame_bottom, text=1)
-        self.label_dado.pack()
-       
-        self.window.mainloop()
-    
+names = ['Laura', 'Yenni', 'Dianix']
+app = Game(names)    
      
    
