@@ -72,7 +72,7 @@ class Game:
         for name in names:
             player = Players(name, self.balls_per_player)
             self.players_list.append(player)
-            label_name = tk.Label(self.frame_top_names, text=f'{name} | Bolas restantes : {player.amount}')
+            label_name = tk.Label(self.frame_top_names, text=f'{name} | Total Bolas : {player.amount}')
             label_name.config(background='white', pady=2, padx=5)
             label_name.pack()
             self.player_labels.append(label_name) 
